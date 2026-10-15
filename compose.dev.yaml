@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    init: true
+    working_dir: /app
+    stop_grace_period: 15s
+    command: ["bash", "scripts/dev-watch.sh"]
+    environment:
+      CARGO_TARGET_DIR: /cargo-target
+      DEV_WATCH_POLL: "1"
+      DEV_TLS: "0"
+    volumes:
+      - .:/app
+      - dev_cargo_registry:/usr/local/cargo/registry
+      - dev_cargo_git:/usr/local/cargo/git
+      - dev_target:/cargo-target
+volumes:
+  dev_cargo_registry:
+  dev_cargo_git:
+  dev_target:

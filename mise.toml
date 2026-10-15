@@ -1,0 +1,22 @@
+[tools]
+# You may want to pin this later, I just don't want to keep updating example repo
+rust = "latest"
+
+[tasks.setup]
+description = "Generate the local HTTPS certificate if missing"
+run = "bash scripts/dev-cert.sh generate"
+
+[tasks.dev]
+description = "Run local HTTPS with automatic Rust rebuilds"
+depends = ["setup"]
+tools = { watchexec = "latest" }
+run = "bash scripts/dev-watch.sh"
+
+[tasks."cert:install-macos"]
+description = "Trust the local certificate in the macOS user login keychain"
+depends = ["setup"]
+run = "bash scripts/dev-cert.sh install-macos"
+
+[tasks."cert:uninstall-macos"]
+description = "Remove the local certificate and its user trust from macOS"
+run = "bash scripts/dev-cert.sh uninstall-macos"
