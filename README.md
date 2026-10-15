@@ -60,7 +60,7 @@ The API is available at `https://localhost`. Compose checks `/health` before sta
 | POST | `/api/auth/logout` | Session | Deletes the current session, returns 204 |
 | GET | `/api/users/me` | Session | Current user from PostgreSQL, or 401 |
 | GET | `/api/users/search?q=ali` | Session | Matching users, sorted by username, up to 50 |
-| GET | `/api/openapi.json` | Public | Generated OpenAPI spec |
+| GET | `/api/openapi.json` | Public, debug builds only | Generated OpenAPI spec |
 
 Login accepts `{"username":"admin","password":"admin"}`. User objects contain `id`, `username`, and `display_name`.
 
@@ -76,6 +76,14 @@ curl -k -b /tmp/api-example.cookies 'https://localhost/api/users/search?q=ali'
 curl -k -b /tmp/api-example.cookies https://localhost/api/users/me
 curl -k -b /tmp/api-example.cookies -X POST https://localhost/api/auth/logout
 ```
+
+## OpenAPI Spec
+
+```sh
+mise run openapi
+```
+
+Writes `openapi.json` in the repository root using the registered routes, no server or database needs to be running. Debug builds also serve `/api/openapi.json`.
 
 ## Example code
 
@@ -93,6 +101,7 @@ curl -k -b /tmp/api-example.cookies -X POST https://localhost/api/auth/logout
 - `src/error.rs`: JSON errors and internal error logging.
 - `migrations/`: schema and seed data, embedded in the binary.
 - `examples/dev-server.rs`: local HTTPS runner.
+- `examples/openapi.rs`: exports the generated OpenAPI spec to a file.
 - `mise.toml`: setup, watch mode, and explicit macOS trust tasks.
 - `scripts/dev-cert.sh`: certificate generation and user keychain actions.
 - `scripts/dev-watch.sh`: shared host and container watch command.

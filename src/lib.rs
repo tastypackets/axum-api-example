@@ -13,6 +13,11 @@ use tower_sessions::{
     cookie::{SameSite, time::Duration},
 };
 
+/// Generates the spec from route registration without a database or running server.
+pub fn openapi() -> utoipa::openapi::OpenApi {
+    api::documented_routes().into_openapi()
+}
+
 /// Builds the example routes with a fresh session store.
 pub fn router(state: AppState) -> Router {
     let sessions = SessionManagerLayer::new(MemoryStore::default())

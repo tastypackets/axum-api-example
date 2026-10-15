@@ -264,12 +264,26 @@ async fn login_rotates_session_and_deleted_users_lose_access(pool: PgPool) {
     }
 }
 
-#[sqlx::test]
-async fn spec_describes_routes_query_and_cookie_auth(pool: PgPool) {
+#[tokio::test]
+async fn spec_endpoint_is_only_available_in_debug_builds() {
+    let pool = PgPool::connect_lazy("postgres://example:example@127.0.0.1:1/example")
+        .expect("configure lazy pool");
     let (app, _) = app(pool);
     let response = request(&app, "GET", "/api/openapi.json", None, "").await;
-    assert_eq!(response.status(), StatusCode::OK);
-    let spec = json_body(response).await;
+    if cfg!(debug_assertions) {
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            json_body(response).await,
+            serde_json::to_value(api_example::openapi()).expect("serialize API spec")
+        );
+    } else {
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+}
+
+#[test]
+fn spec_describes_routes_query_and_cookie_auth() {
+    let spec = serde_json::to_value(api_example::openapi()).expect("serialize API spec");
     assert_eq!(spec["paths"].as_object().expect("API paths").len(), 5);
     for (path, method) in [
         ("/health", "get"),

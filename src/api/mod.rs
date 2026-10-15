@@ -8,15 +8,24 @@ use axum::{Json, Router, routing::get};
 use utoipa::OpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-pub(crate) fn routes() -> Router<AppState> {
+pub(crate) fn documented_routes() -> OpenApiRouter<AppState> {
     let api = OpenApiRouter::new()
         .nest("/auth", auth::routes())
         .nest("/users", users::routes());
 
-    let (router, spec) = OpenApiRouter::with_openapi(openapi::ApiDoc::openapi())
+    OpenApiRouter::with_openapi(openapi::ApiDoc::openapi())
         .routes(routes!(health::health))
         .nest("/api", api)
-        .split_for_parts();
+}
 
-    router.route("/api/openapi.json", get(move || async move { Json(spec) }))
+pub(crate) fn routes() -> Router<AppState> {
+    let (router, spec) = documented_routes().split_for_parts();
+
+    // Release builds omit this endpoint to avoid publishing the API spec by default.
+    // Remove this condition to serve the spec in production too.
+    if cfg!(debug_assertions) {
+        router.route("/api/openapi.json", get(move || async move { Json(spec) }))
+    } else {
+        router
+    }
 }

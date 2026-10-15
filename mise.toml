@@ -12,6 +12,10 @@ depends = ["setup"]
 tools = { watchexec = "latest" }
 run = "bash scripts/dev-watch.sh"
 
+[tasks.openapi]
+description = "Generate openapi.json without a running server or database"
+run = "cargo run --locked --example openapi"
+
 [tasks."cert:install-macos"]
 description = "Trust the local certificate in the macOS user login keychain"
 depends = ["setup"]
